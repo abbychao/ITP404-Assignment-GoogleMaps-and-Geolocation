@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Google Maps and Geolocation</title>
+	<style>	#map {height: 600px; width:900px; margin:0 auto;} </style>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+</head>
+<body>
+
+<span id="errors"></span>
+<div id="map"></div>
+
+
+<script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+<script>
+
+
+
+(function() {
+
+	// Feature Detection
+	if(navigator.geolocation) {
+		// This actually takes three arguments
+		// first: success handler (a function)
+		// second: error handler (another function)
+		// third: options (object literal with various options for the function)
+		navigator.geolocation.getCurrentPosition(function(position) {
+			var currLat = position.coords.latitude;
+			var currLng = position.coords.longitude;
+			var curr = new google.maps.LatLng(currLat, currLng);
+			var myOptions = {
+				zoom: 5,
+				center: curr,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			};
+			var map = new google.maps.Map(document.getElementById('map'), myOptions);
+			var marker = new google.maps.Marker({
+				position: curr,
+				title: "Current Location",
+				icon: "blue_dot_circle.png"
+			});
+			marker.setMap(map);
+
+			var geocoder = new google.maps.Geocoder();
+			param1 = {
+				location: curr
+			};
+			geocoder.geocode(param1, function(results, stats) {
+				var address = results[0].formatted_address;
+				var infowindow = new google.maps.InfoWindow({
+					content: address
+				});
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.open(map, marker);
+				});
+			})			
+		});
+	}
+	else {
+		$('#errors').html('Geolocation is not supported in this browser.');
+	}	
+
+})();
+</script>
+
+</body>
+</html>
